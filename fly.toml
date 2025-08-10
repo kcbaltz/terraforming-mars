@@ -23,5 +23,5 @@ primary_region = 'sjc'
   memory_mb = 256
 
 [env]
-  DATABASE_URL = "postgresql://postgres:sJgAFaoJZnJzUSB@tmdotpg1.flycast:5432"
-  POSTGRES_HOST = "postgresql://postgres:sJgAFaoJZnJzUSB@tmdotpg1.flycast:5432"
+  DATABASE_URL = "postgresql://postgres:sJgAFaoJZnJzUSB@tmdotpg1.flycast"
+  POSTGRES_HOST = "postgresql://postgres:sJgAFaoJZnJzUSB@tmdotpg1.flycast"
