@@ -15,6 +15,8 @@
   "Show in-game alerts": "Показувати сповіщення в грі",
   "Hide Milestones / Awards scores": "Приховати бали досягнень / нагород",
   "Enable sounds": "Увімкнути звуки",
+  "Enable push notifications": "Увімкнути push-сповіщення",
+  "Receive notifications when it's your turn, even with browser closed": "Отримувати сповіщення коли ваш хід, навіть при закритому браузері",
   "Hide tile confirmation": "Приховати підтвердження плитки",
   "Hide discount on cards": "Приховати знижку на картах",
   "Show discount on cards": "Показувати знижку на картах",

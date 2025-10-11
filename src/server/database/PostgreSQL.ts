@@ -2,16 +2,17 @@ import type * as pg from 'pg';
 import {IDatabase} from './IDatabase';
 import {IGame, Score} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
-import {GameId, ParticipantId, isGameId, safeCast} from '../../common/Types';
+import {GameId, ParticipantId, PlayerId, isGameId, safeCast} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
 import {daysAgoToSeconds, stringToNumber} from './utils';
 import {GameIdLedger} from './IDatabase';
 import {Session, SessionId} from '../auth/Session';
 import {toID} from '../../common/utils/utils';
+import {PushSubscriptionData} from '../player/PushSubscription';
 
 type StoredSerializedGame = Omit<SerializedGame, 'gameOptions' | 'gameLog'> & {logLength: number};
 
-export const POSTGRESQL_TABLES = ['game', 'games', 'game_results', 'participants', 'completed_game', 'session'] as const;
+export const POSTGRESQL_TABLES = ['game', 'games', 'game_results', 'participants', 'completed_game', 'session', 'push_subscriptions'] as const;
 
 const POSTGRES_TRIM_COUNT = stringToNumber(process.env.POSTGRES_TRIM_COUNT, 10);
 
@@ -106,11 +107,21 @@ export class PostgreSQL implements IDatabase {
       expiration_time timestamp not null,
       PRIMARY KEY (session_id));
 
+    CREATE TABLE IF NOT EXISTS push_subscriptions(
+      id SERIAL PRIMARY KEY,
+      player_id varchar(64) NOT NULL,
+      endpoint text NOT NULL UNIQUE,
+      p256dh text NOT NULL,
+      auth text NOT NULL,
+      created_at timestamp DEFAULT now(),
+      last_used timestamp DEFAULT now());
+
     CREATE INDEX IF NOT EXISTS games_i1 on games(save_id);
     CREATE INDEX IF NOT EXISTS games_i2 on games(created_time);
     CREATE INDEX IF NOT EXISTS participants_idx_ids on participants USING GIN (participants);
     CREATE INDEX IF NOT EXISTS completed_game_idx_completed_time on completed_game(completed_time);
     CREATE INDEX IF NOT EXISTS session_idx_expiration_time on session(expiration_time);
+    CREATE INDEX IF NOT EXISTS push_subscriptions_idx_player_id on push_subscriptions(player_id);
     `;
     await this.client.query(sql);
   }
@@ -445,5 +456,51 @@ export class PostgreSQL implements IDatabase {
         expirationTimeMillis: row.expiration_time.getTime(),
       };
     });
+  }
+
+  public async savePushSubscription(playerId: PlayerId, subscription: PushSubscriptionData): Promise<void> {
+    await this.client.query(
+      `INSERT INTO push_subscriptions (player_id, endpoint, p256dh, auth)
+       VALUES ($1, $2, $3, $4)
+       ON CONFLICT (endpoint) DO UPDATE
+       SET p256dh = $3, auth = $4, last_used = now()`,
+      [playerId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth],
+    );
+  }
+
+  public async getPushSubscriptions(playerId: PlayerId): Promise<PushSubscriptionData[]> {
+    const res = await this.client.query(
+      'SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE player_id = $1',
+      [playerId],
+    );
+
+    return res.rows.map((row) => ({
+      endpoint: row.endpoint,
+      keys: {
+        p256dh: row.p256dh,
+        auth: row.auth,
+      },
+    }));
+  }
+
+  public async deletePushSubscription(playerId: PlayerId, endpoint: string): Promise<void> {
+    await this.client.query(
+      'DELETE FROM push_subscriptions WHERE player_id = $1 AND endpoint = $2',
+      [playerId, endpoint],
+    );
+  }
+
+  public async deleteAllPushSubscriptions(playerId: PlayerId): Promise<void> {
+    await this.client.query(
+      'DELETE FROM push_subscriptions WHERE player_id = $1',
+      [playerId],
+    );
+  }
+
+  public async updatePushSubscriptionLastUsed(playerId: PlayerId, endpoint: string): Promise<void> {
+    await this.client.query(
+      'UPDATE push_subscriptions SET last_used = now() WHERE player_id = $1 AND endpoint = $2',
+      [playerId, endpoint],
+    );
   }
 }

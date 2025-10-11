@@ -1,11 +1,12 @@
 import {GameIdLedger, IDatabase} from './IDatabase';
 import {IGame, Score} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
-import {GameId, isGameId, ParticipantId} from '../../common/Types';
+import {GameId, isGameId, ParticipantId, PlayerId} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
 import {Dirent, existsSync, mkdirSync, readdirSync, readFileSync, unlinkSync, writeFileSync} from 'fs';
 import {Session, SessionId} from '../auth/Session';
 import {toID} from '../../common/utils/utils';
+import {PushSubscriptionData} from '../player/PushSubscription';
 
 const path = require('path');
 const defaultDbFolder = path.resolve(process.cwd(), './db/files');
@@ -15,6 +16,7 @@ export class LocalFilesystem implements IDatabase {
   private readonly historyFolder: string;
   private readonly completedFolder: string;
   private readonly sessionsFolder: string;
+  private readonly pushSubscriptionsFolder: string;
   public static quiet: boolean = false;
 
   constructor(dbFolder: string = defaultDbFolder) {
@@ -22,11 +24,12 @@ export class LocalFilesystem implements IDatabase {
     this.historyFolder = path.resolve(dbFolder, 'history');
     this.completedFolder = path.resolve(dbFolder, 'completed');
     this.sessionsFolder = path.resolve(dbFolder, 'sessions');
+    this.pushSubscriptionsFolder = path.resolve(dbFolder, 'push_subscriptions');
   }
 
   public initialize(): Promise<void> {
     console.log(`Starting local database at ${this.dbFolder}`);
-    const dirs = [this.dbFolder, this.historyFolder, this.completedFolder, this.sessionsFolder];
+    const dirs = [this.dbFolder, this.historyFolder, this.completedFolder, this.sessionsFolder, this.pushSubscriptionsFolder];
     for (const folder of dirs) {
       if (!existsSync(folder)) {
         mkdirSync(folder);
@@ -246,5 +249,74 @@ export class LocalFilesystem implements IDatabase {
 
   private deleteVersion(gameId: GameId, version: number) {
     unlinkSync(this.historyFilename(gameId, version));
+  }
+
+  private pushSubscriptionsFilename(playerId: PlayerId): string {
+    return path.resolve(this.pushSubscriptionsFolder, `${playerId}.json`);
+  }
+
+  public savePushSubscription(playerId: PlayerId, subscription: PushSubscriptionData): Promise<void> {
+    const filename = this.pushSubscriptionsFilename(playerId);
+    let subscriptions: PushSubscriptionData[] = [];
+
+    if (existsSync(filename)) {
+      const text = readFileSync(filename);
+      subscriptions = JSON.parse(text.toString());
+    }
+
+    // Remove existing subscription with same endpoint
+    subscriptions = subscriptions.filter((sub) => sub.endpoint !== subscription.endpoint);
+    // Add new subscription
+    subscriptions.push(subscription);
+
+    writeFileSync(filename, JSON.stringify(subscriptions, null, 2));
+    return Promise.resolve();
+  }
+
+  public getPushSubscriptions(playerId: PlayerId): Promise<PushSubscriptionData[]> {
+    const filename = this.pushSubscriptionsFilename(playerId);
+
+    if (!existsSync(filename)) {
+      return Promise.resolve([]);
+    }
+
+    const text = readFileSync(filename);
+    const subscriptions = JSON.parse(text.toString());
+    return Promise.resolve(subscriptions);
+  }
+
+  public deletePushSubscription(playerId: PlayerId, endpoint: string): Promise<void> {
+    const filename = this.pushSubscriptionsFilename(playerId);
+
+    if (!existsSync(filename)) {
+      return Promise.resolve();
+    }
+
+    const text = readFileSync(filename);
+    let subscriptions: PushSubscriptionData[] = JSON.parse(text.toString());
+    subscriptions = subscriptions.filter((sub) => sub.endpoint !== endpoint);
+
+    if (subscriptions.length === 0) {
+      unlinkSync(filename);
+    } else {
+      writeFileSync(filename, JSON.stringify(subscriptions, null, 2));
+    }
+
+    return Promise.resolve();
+  }
+
+  public deleteAllPushSubscriptions(playerId: PlayerId): Promise<void> {
+    const filename = this.pushSubscriptionsFilename(playerId);
+
+    if (existsSync(filename)) {
+      unlinkSync(filename);
+    }
+
+    return Promise.resolve();
+  }
+
+  public updatePushSubscriptionLastUsed(_playerId: PlayerId, _endpoint: string): Promise<void> {
+    // LocalFilesystem doesn't track lastUsed timestamp
+    return Promise.resolve();
   }
 }

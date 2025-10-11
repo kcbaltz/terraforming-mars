@@ -83,6 +83,10 @@ function getLogLength() {
   return 50;
 }
 
+function getVapidPublicKey() {
+  return process.env.VAPID_PUBLIC_KEY || '';
+}
+
 if (!fs.existsSync('src/genfiles')) {
   fs.mkdirSync('src/genfiles');
 }
@@ -93,6 +97,7 @@ fs.writeFileSync('src/genfiles/settings.json', JSON.stringify({
   builtAt: buildmetadata.date,
   waitingForTimeout: getWaitingForTimeout(),
   logLength: getLogLength(),
+  vapidPublicKey: getVapidPublicKey(),
 }));
 
 fs.writeFileSync('src/genfiles/translations.json', JSON.stringify(

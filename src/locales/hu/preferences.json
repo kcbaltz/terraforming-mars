@@ -15,6 +15,8 @@
   "Show in-game alerts": "Játékbeli figyelmeztetések mutatása",
   "Hide Milestones / Awards scores": "Mérföldkövek/Díjak pontjainak elrejtése",
   "Enable sounds": "Hangok engedélyezése",
+  "Enable push notifications": "Push értesítések engedélyezése",
+  "Receive notifications when it's your turn, even with browser closed": "Értesítések fogadása amikor rajtad a sor, még bezárt böngészővel is",
   "Hide tile confirmation": "Lapka lehelyezés megerősítésének elrejtése",
   "Hide discount on cards": "Kedvezmény elrejtése a kártyákon",
   "Show discount on cards": "Kedvezmény mutatása a kártyákon",

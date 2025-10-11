@@ -15,6 +15,8 @@
   "Show in-game alerts": "Mostrar alertas de jogo",
   "Hide Milestones / Awards scores": "Ocultar pontuação de Marcos/Prêmios",
   "Enable sounds": "Ativar sons",
+  "Enable push notifications": "Ativar notificações push",
+  "Receive notifications when it's your turn, even with browser closed": "Receber notificações quando for sua vez, mesmo com navegador fechado",
   "Hide sidebar notification": "Esconder notificações da barra lateral",
   "Hide tile confirmation": "Confirmação ao ocultar tile",
   "Hide discount on cards": "Esconder desconto nas cartas",

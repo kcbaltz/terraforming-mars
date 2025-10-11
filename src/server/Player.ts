@@ -48,6 +48,7 @@ import {Turmoil} from './turmoil/Turmoil';
 import {PathfindersExpansion} from './pathfinders/PathfindersExpansion';
 import {ColoniesHandler} from './colonies/ColoniesHandler';
 import {MonsInsurance} from './cards/promo/MonsInsurance';
+import {PushNotificationSender} from './utils/PushNotificationSender';
 import {InputResponse} from '../common/inputs/InputResponse';
 import {Tags} from './player/Tags';
 import {Colonies} from './player/Colonies';
@@ -1663,6 +1664,16 @@ export class Player implements IPlayer {
     this.waitingFor = input;
     this.waitingForCb = cb;
     this.game.inputsThisRound++;
+
+    // Send push notification when it becomes this player's turn
+    const gameUrl = `${process.env.SERVER_URL || ''}/player?id=${this.id}`;
+    PushNotificationSender.getInstance().sendToPlayer(this.id, {
+      title: 'Terraforming Mars',
+      body: 'It\'s your turn!',
+      url: gameUrl,
+    }).catch((err) => {
+      console.error(`Failed to send push notification to ${this.id}:`, err);
+    });
   }
 
   /**

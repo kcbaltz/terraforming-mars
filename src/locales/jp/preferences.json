@@ -15,6 +15,8 @@
     "Show in-game alerts": "アラート表示",
     "Hide Milestones / Awards scores": "非表示：称号と褒賞の達成数",
     "Enable sounds": "サウンド",
+    "Enable push notifications": "プッシュ通知を有効化",
+    "Receive notifications when it's your turn, even with browser closed": "ブラウザを閉じていても自分のターンに通知を受け取る",
     "Hide tile confirmation":"非表示：配置確認",
     "Hide discount on cards": "減額後のコストを非表示",
     "Show discount on cards":"減額後のコストを表示",

@@ -1,10 +1,11 @@
 import {GameIdLedger, IDatabase} from './IDatabase';
 import {IGame, Score} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
-import {GameId, ParticipantId} from '../../common/Types';
+import {GameId, ParticipantId, PlayerId} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
 import {Session} from '../auth/Session';
 import {toID} from '../../common/utils/utils';
+import {PushSubscriptionData} from '../player/PushSubscription';
 
 let storage: Storage;
 
@@ -210,5 +211,66 @@ export class LocalStorage implements IDatabase {
   }
   getSessions(): Promise<Array<Session>> {
     return Promise.resolve([]);
+  }
+
+  public savePushSubscription(playerId: PlayerId, subscription: PushSubscriptionData): Promise<void> {
+    const key = 'push:' + playerId;
+    let subscriptions: PushSubscriptionData[] = [];
+
+    const text = storage.getItem(key);
+    if (text !== null) {
+      subscriptions = JSON.parse(text);
+    }
+
+    // Remove existing subscription with same endpoint
+    subscriptions = subscriptions.filter((sub) => sub.endpoint !== subscription.endpoint);
+    // Add new subscription
+    subscriptions.push(subscription);
+
+    storage.setItem(key, JSON.stringify(subscriptions));
+    return Promise.resolve();
+  }
+
+  public getPushSubscriptions(playerId: PlayerId): Promise<PushSubscriptionData[]> {
+    const key = 'push:' + playerId;
+    const text = storage.getItem(key);
+
+    if (text === null) {
+      return Promise.resolve([]);
+    }
+
+    const subscriptions = JSON.parse(text);
+    return Promise.resolve(subscriptions);
+  }
+
+  public deletePushSubscription(playerId: PlayerId, endpoint: string): Promise<void> {
+    const key = 'push:' + playerId;
+    const text = storage.getItem(key);
+
+    if (text === null) {
+      return Promise.resolve();
+    }
+
+    let subscriptions: PushSubscriptionData[] = JSON.parse(text);
+    subscriptions = subscriptions.filter((sub) => sub.endpoint !== endpoint);
+
+    if (subscriptions.length === 0) {
+      storage.removeItem(key);
+    } else {
+      storage.setItem(key, JSON.stringify(subscriptions));
+    }
+
+    return Promise.resolve();
+  }
+
+  public deleteAllPushSubscriptions(playerId: PlayerId): Promise<void> {
+    const key = 'push:' + playerId;
+    storage.removeItem(key);
+    return Promise.resolve();
+  }
+
+  public updatePushSubscriptionLastUsed(_playerId: PlayerId, _endpoint: string): Promise<void> {
+    // LocalStorage doesn't track lastUsed timestamp
+    return Promise.resolve();
   }
 }

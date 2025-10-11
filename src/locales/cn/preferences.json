@@ -15,6 +15,8 @@
     "Show in-game alerts": "显示游戏内报警",
     "Hide Milestones / Awards scores": "隐藏里程碑 / 奖项分数",
     "Enable sounds": "启用轮次提示音",
+    "Enable push notifications": "启用推送通知",
+    "Receive notifications when it's your turn, even with browser closed": "即使浏览器关闭也能在轮到你时收到通知",
     "Hide tile confirmation":"隐藏板块确认信息",
     "Language": "语言",
     "refresh page": "选择以下语言后<点我>或者刷新页面,",

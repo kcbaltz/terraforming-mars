@@ -15,6 +15,8 @@
     "Show in-game alerts": "Mostra gli avvisi durante la partita",
     "Hide Milestones / Awards scores": "Nascondi il punteggio di Milestone e Riconoscimenti",
     "Enable sounds": "Attiva i suoni",
+    "Enable push notifications": "Attiva le notifiche push",
+    "Receive notifications when it's your turn, even with browser closed": "Ricevi notifiche quando è il tuo turno, anche con browser chiuso",
     "Hide tile confirmation":"Nascondi la conferma tessere",
     "Language": "Lingua",
     "refresh page": "aggiorna la pagina",

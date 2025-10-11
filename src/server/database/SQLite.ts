@@ -5,12 +5,13 @@ import type * as sqlite3 from 'sqlite3';
 import {GameIdLedger, IDatabase} from './IDatabase';
 import {IGame, Score} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
-import {GameId, ParticipantId} from '../../common/Types';
+import {GameId, ParticipantId, PlayerId} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
 import {daysAgoToSeconds} from './utils';
 import {MultiMap} from 'mnemonist';
 import {Session, SessionId} from '../auth/Session';
 import {toID} from '../../common/utils/utils';
+import {PushSubscriptionData} from '../player/PushSubscription';
 
 export const IN_MEMORY_SQLITE_PATH = ':memory:';
 
@@ -57,6 +58,19 @@ export class SQLite implements IDatabase {
         expiration_time timestamp not null,
         PRIMARY KEY (session_id)
       )`);
+
+    await this.asyncRun(
+      `CREATE TABLE IF NOT EXISTS push_subscriptions(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id TEXT NOT NULL,
+        endpoint TEXT NOT NULL UNIQUE,
+        p256dh TEXT NOT NULL,
+        auth TEXT NOT NULL,
+        created_at DATETIME DEFAULT (strftime('%s', 'now')),
+        last_used DATETIME DEFAULT (strftime('%s', 'now'))
+      )`);
+
+    await this.asyncRun('CREATE INDEX IF NOT EXISTS push_subscriptions_idx_player_id ON push_subscriptions(player_id)');
   }
 
   public async getPlayerCount(gameId: GameId): Promise<number> {
@@ -332,5 +346,51 @@ export class SQLite implements IDatabase {
         throw err;
       }
     }
+  }
+
+  public async savePushSubscription(playerId: PlayerId, subscription: PushSubscriptionData): Promise<void> {
+    await this.asyncRun(
+      `INSERT INTO push_subscriptions (player_id, endpoint, p256dh, auth)
+       VALUES (?, ?, ?, ?)
+       ON CONFLICT(endpoint) DO UPDATE
+       SET p256dh = ?, auth = ?, last_used = strftime('%s', 'now')`,
+      [playerId, subscription.endpoint, subscription.keys.p256dh, subscription.keys.auth, subscription.keys.p256dh, subscription.keys.auth],
+    );
+  }
+
+  public async getPushSubscriptions(playerId: PlayerId): Promise<PushSubscriptionData[]> {
+    const rows = await this.asyncAll(
+      'SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE player_id = ?',
+      [playerId],
+    );
+
+    return rows.map((row) => ({
+      endpoint: row.endpoint,
+      keys: {
+        p256dh: row.p256dh,
+        auth: row.auth,
+      },
+    }));
+  }
+
+  public async deletePushSubscription(playerId: PlayerId, endpoint: string): Promise<void> {
+    await this.asyncRun(
+      'DELETE FROM push_subscriptions WHERE player_id = ? AND endpoint = ?',
+      [playerId, endpoint],
+    );
+  }
+
+  public async deleteAllPushSubscriptions(playerId: PlayerId): Promise<void> {
+    await this.asyncRun(
+      'DELETE FROM push_subscriptions WHERE player_id = ?',
+      [playerId],
+    );
+  }
+
+  public async updatePushSubscriptionLastUsed(playerId: PlayerId, endpoint: string): Promise<void> {
+    await this.asyncRun(
+      'UPDATE push_subscriptions SET last_used = strftime(\'%s\', \'now\') WHERE player_id = ? AND endpoint = ?',
+      [playerId, endpoint],
+    );
   }
 }

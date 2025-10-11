@@ -44,6 +44,13 @@
       </div>
       <div class="preferences_panel_item">
         <label class="form-switch">
+          <input type="checkbox" v-on:change="handlePushToggle" v-model="prefs.enable_push_notifications" data-test="enable_push_notifications">
+          <i class="form-icon"></i> <span v-i18n>Enable push notifications</span>
+          <span class="tooltip tooltip-left" :data-tooltip="$t('Receive notifications when it\'s your turn, even with browser closed')">&#9432;</span>
+        </label>
+      </div>
+      <div class="preferences_panel_item">
+        <label class="form-switch">
           <input type="checkbox" v-on:change="updatePreferences" v-model="prefs.hide_animated_sidebar" data-test="hide_animated_sidebar">
           <i class="form-icon"></i> <span v-i18n>Hide sidebar notification</span>
         </label>
@@ -103,6 +110,9 @@ import {WithRefs} from 'vue-typed-refs';
 
 import {getPreferences, PreferencesManager, Preference} from '@/client/utils/PreferencesManager';
 import BugReportDialog from '@/client/components/BugReportDialog.vue';
+import {getPushManager} from '@/client/utils/PushManager';
+import {vueRoot} from '@/client/components/vueRoot';
+import {isPlayerId} from '@/common/Types';
 
 type Refs = {
   bugDialog: InstanceType<typeof BugReportDialog>,
@@ -141,6 +151,39 @@ export default (Vue as WithRefs<Refs>).extend({
         const val = this.prefs[k];
         this.preferencesManager.set(k, val, /* setOnChange */ true);
       }
+    },
+    handlePushToggle(): void {
+      const pushManager = getPushManager();
+      const root = vueRoot(this);
+
+      if (this.prefs.enable_push_notifications) {
+        // Subscribe to push notifications
+        const playerView = root.playerView;
+        if (playerView && isPlayerId(playerView.id)) {
+          const vapidKey = root.settings?.vapidPublicKey;
+          if (!vapidKey) {
+            console.error('VAPID public key not configured');
+            this.prefs.enable_push_notifications = false;
+            return;
+          }
+          pushManager.subscribe(vapidKey, playerView.id).catch((err) => {
+            console.error('Failed to subscribe to push notifications:', err);
+            // Revert the preference
+            this.preferencesManager.set('enable_push_notifications', false);
+            this.prefs.enable_push_notifications = false;
+          });
+        }
+      } else {
+        // Unsubscribe from push notifications
+        const playerView = root.playerView;
+        if (playerView && isPlayerId(playerView.id)) {
+          pushManager.unsubscribe(playerView.id).catch((err) => {
+            console.error('Failed to unsubscribe from push notifications:', err);
+          });
+        }
+      }
+
+      this.updatePreferences();
     },
     syncPreferences(): void {
       const target = document.getElementById('ts-preferences-target');

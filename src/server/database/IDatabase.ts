@@ -1,8 +1,9 @@
 import {IGame, Score} from '../IGame';
 import {GameOptions} from '../game/GameOptions';
-import {GameId, ParticipantId} from '../../common/Types';
+import {GameId, ParticipantId, PlayerId} from '../../common/Types';
 import {SerializedGame} from '../SerializedGame';
 import {Session, SessionId} from '../auth/Session';
+import {PushSubscriptionData} from '../player/PushSubscription';
 
 export type GameIdLedger = {gameId: GameId, participantIds: Array<ParticipantId>}
 
@@ -135,4 +136,29 @@ export interface IDatabase {
     createSession(session: Session): Promise<void>;
     deleteSession(sessionId: SessionId): Promise<void>;
     getSessions(): Promise<Array<Session>>;
+
+    /**
+     * Store a push subscription for a player
+     */
+    savePushSubscription(playerId: PlayerId, subscription: PushSubscriptionData): Promise<void>;
+
+    /**
+     * Get all push subscriptions for a player
+     */
+    getPushSubscriptions(playerId: PlayerId): Promise<PushSubscriptionData[]>;
+
+    /**
+     * Delete a specific push subscription
+     */
+    deletePushSubscription(playerId: PlayerId, endpoint: string): Promise<void>;
+
+    /**
+     * Delete all push subscriptions for a player
+     */
+    deleteAllPushSubscriptions(playerId: PlayerId): Promise<void>;
+
+    /**
+     * Update the last used timestamp for a subscription
+     */
+    updatePushSubscriptionLastUsed(playerId: PlayerId, endpoint: string): Promise<void>;
 }

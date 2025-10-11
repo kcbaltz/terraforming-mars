@@ -15,6 +15,8 @@
     "Show in-game alerts": "게임 내 경고 보이기",
     "Hide Milestones / Awards scores": "업적 및 기업상 점수 숨기기",
     "Enable sounds": "소리 활성화",
+    "Enable push notifications": "푸시 알림 활성화",
+    "Receive notifications when it's your turn, even with browser closed": "브라우저를 닫아도 자신의 차례가 되면 알림 받기",
     "Hide tile confirmation": "타일 확인 숨기기",
     "Hide discount on cards": "카드 할인 정보 숨기기",
     "Show discount on cards": "카드 할인 정보 보이기",

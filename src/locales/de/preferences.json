@@ -15,6 +15,8 @@
   "Show in-game alerts": "Zeige Warnungen im Spiel",
   "Hide Milestones / Awards scores": "Verberge Meilenstein-/Auszeichnungspunkte",
   "Enable sounds": "Sounds aktivieren",
+  "Enable push notifications": "Push-Benachrichtigungen aktivieren",
+  "Receive notifications when it's your turn, even with browser closed": "Erhalte Benachrichtigungen wenn du dran bist, auch bei geschlossenem Browser",
   "Hide tile confirmation": "Verberge Bestätigung bei Platzierung",
   "Hide discount on cards": "Verberge Rabatt auf Karten",
   "Show discount on cards": "Zeige Rabatt auf Karten",
