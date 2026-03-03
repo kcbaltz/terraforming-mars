@@ -36,7 +36,7 @@
 "THIS CAN'T BE BLOCKED BY CORRUPTION": "DIES KANN NICHT DURCH KORRUPTION VERHINDERT WERDEN",
 "The player with more corruption than anybody else discards corruption until they have the same amount as the 2nd highest player, along with 3 M€ per unit of corruption removed this way.": "Der Spieler, der mehr Korruption als alle anderen hat, wirft so lange Korruption ab, bis er die gleiche Menge wie der zweithöchste Spieler hat, zusammen mit 3 M€ pro auf diese Weise entfernter Einheit Korruption.",
 
-"Concession Rights": "Konzessionsrechte",
+"Tunneling Loophole": "Tunnelbau-Lücke",
 "Requires 1 Earth tag. Until the end of this generation, you can excavate ignoring placement restrictions. Excavate 1 underground resource. Gain 1 corruption.": "Benötigt 1 Erd-Symbol. Bis zum Ende dieser Generation kannst du ohne Rücksicht auf Platzierungsbeschränkungen graben. Grabe 1 unterirdische Ressource aus. Erhalte 1 Korruption.",
 
 "Corporate Blackmail": "Erpressung durch Unternehmen",
@@ -155,7 +155,7 @@
 "Effect: The first standard project action you take each generation, except selling patents, costs 6 M€ less.": "EFFEKT: Die erste Standard-Projekt-Aktion, die Du pro Generation durchführst, außer dem Verkauf von Patenten, kostet 6 M€ weniger.",
 
 "Landfill": "Mülldeponie",
-"Increase your M€ production 1 step for each different TYPE of production you have at least 1 step of.": "Erhöhe deine M€-Produktion um 1 für jede andere Produktionsart, von der du mindestens 1 Stufe hast.",
+"Increase your M€ production 1 step for each different TYPE of production you have at least 1 step of.": "Erhöhe deine M€-Produktion um 1 für jede unterschiedliche Produktionsart, von der du mindestens 1 hast.",
 
 "Lobbying Network": "Lobbying-Netzwerk",
 
@@ -176,13 +176,14 @@
 
 "Micro-Geodesics": "Mikro-Geodäsie",
 "Action: Spend 1 microbe from ANY card and discard 1 of your claimed underground resource tokens to gain 3 plants.": "AKTION: Bezahle 1 Mikrobe von einer beliebigen Karte und wirf 1 deiner beanspruchten unterirdischen Rohstoffplättchen ab, um 3 Pflanzen zu erhalten.",
+"Excavate an underground resource. Put 1 microbe on this card.": "Grabe eine unterirdische Ressource aus. Lege 1 Mikrobe auf diese Karte.",
 
 "Microgravimetry": "Mikrogravimetrie",
 "Action: Spend 2 energy identify 3 underground resources. Then claim 1 of them.": "AKTION: Bezahle 2 Energie, um 3 unterirdische Ressourcen zu identifizieren. Beanspruche 1 davon.",
 
 "Microprobing Technology": "Mikroskopische Technologie",
 "Requires 1 science tag. Gain 3 plants. Identify 2 underground resources. Claim 1 of them.": "Benötigt 1 Wissenschafts-Symbol. Erhalte 3 Pflanzen. Identifiziere 2 unterirdische Ressourcen. Beanspruche 1 davon.",
-  
+
 "Mining Market Insider": "Bergbau-Markt-Insider",
 "Effect: After any player identifies 1 or more underground spaces (at once), add 1 data resource to this card.": "EFFEKT: Nachdem ein beliebiger Spieler 1 oder mehr unterirdische Ressourcen (auf einmal) identifiziert hat, füge dieser Karte 1 Datum hinzu.",
 "Action: Spend 4 data resources on this card to draw a card.": "Aktion: Bezahle 4 Daten von dieser Karte, um eine Karte zu ziehen.",
@@ -296,8 +297,8 @@
 "Action: Use a standard project that you've already used this generation, with its cost reduced by 8 M€.": "AKTION: Benutze ein Standardprojekt, das du in dieser Generation bereits durchgeführt hast, wobei die Kosten um 8 M€ reduziert werden.",
 
 "Stem Field Subsidies": "Subventionen für Stammzellen",
-"Action: Spend 2 resources here to identify 3 underground resources, . Claim 1 of them.": "AKTION: Bezahle 2 Daten von hier, um 3 unterirdische Ressourcen zu identifizieren. Beanspruche 1 von ihnen.",
-"Whenever you play a science tag (including this), add 1 data to this card": "EFFEKT: Immer wenn du eine Wissenschaftssymbol spielst (einschließlich dieses), lege 1 Datum auf diese Karte.",
+"Action: Spend 2 resources here to identify 3 underground resources. Claim 1 of them.": "AKTION: Bezahle 2 Daten von hier, um 3 unterirdische Ressourcen zu identifizieren. Beanspruche 1 von ihnen.",
+"Effect: Whenever you play a science tag (including this), add 1 data to this card.": "EFFEKT: Immer wenn du eine Wissenschaftssymbol spielst (einschließlich dieses), lege 1 Datum auf diese Karte.",
 
 "Sting Operation": "Verdeckte Operation",
 "Target a player that has at least 4 corruption. Draw 2 cards.": "Ziele auf einen Spieler, der mindestens 4 Korruption hat. Ziehe 2 Karten.",
@@ -333,7 +334,7 @@
 "Decrease your energy production 1 step. Gain 1 TR for every 4 underground tokens you have.": "Verringere deine Energieproduktion um 1. Erhalte 1 TW für je 4 beanspruchte unterirdische Ressourcenplättchen, die du hast.",
 
 "Underground Research Center": "Unterirdisches Forschungszentrum",
-"Requires you have 4 underground tokens. Excavate an underground resource. Choose a tag that is not the wild tag or clone tag. Draw a card with that tag.": "Benötigt 4 beanspruchte unterirdische Ressourcenplättchen. Grabe eine unterirdische Ressource aus. Wähle ein Symbol, die weder eine Tiersymbol noch eine Jokersymbol ist. Ziehe eine Karte mit diesem Symbol.",
+"Requires you have 4 underground tokens. Excavate an underground resource. Choose a tag that is not the wild tag or clone tag. Draw a card with that tag.": "Benötigt 4 beanspruchte unterirdische Ressourcenplättchen. Grabe eine unterirdische Ressource aus. Wähle ein Symbol, das weder ein Joker- noch ein Klonsymbol ist. Ziehe eine Karte mit diesem Symbol.",
 
 "Underground Shelters": "Unterirdische Bunker",
 "Action: Place your player cube on one of your claimed underground resource tokens without a cube on it.": "AKTION: Lege deinen Spielerwürfel auf eines deiner beanspruchten unterirdischen Rohstoffplättchen, auf dem sich kein Würfel befindet.",
@@ -351,7 +352,7 @@
 "Excavate 1 underground resource for every 3 cities in play.": "Grabe 1 unterirdische Ressource für je 3 Städte im Spiel aus.",
 
 "Whales": "Wale",
-"Effect: Whenever you would gain an ocean when there are already 9 oceans on the board, add an animal to this card": "EFFEKT: Immer wenn du einen Ozean erhalten würdest, wenn sich bereits 9 Ozeane auf dem Spielbrett befinden, füge dieser Karte ein Tier hinzu.",
+"Effect: Whenever you would place an ocean when there are already 9 oceans on the board, add an animal to this card": "EFFEKT: Immer wenn du einen Ozean platzieren würdest, wenn sich bereits 9 Ozeane auf dem Spielbrett befinden, füge dieser Karte ein Tier hinzu.",
 "Requires 6 oceans. 1 VP for each animal on this card.": "Benötigt 6 Ozeane. 1 SP für jedes Tier auf dieser Karte."
 
 }

@@ -931,7 +931,6 @@
 	"Ocean Sanctuary": "Havreservat",
 	"Oxygen Level": "Oksygennivå",
 	"Spectator link": "Tilskuerlenke",
-	"Warning: This server automatically purges unfinished games. Try to complete this game by ${0}.": "Advarsel: Denne serveren sletter automatisk uferdige spill. Prøv å fullføre dette spillet innen ${0}.",
 	"Warning: This game will be purged in approximately ${0} hours.": "Advarsel: Dette spillet vil bli slettet om ca. ${0} timer.",
 
 	"How to pay?": "Spilleveiledning",
@@ -1046,6 +1045,7 @@
     "Note: Moon habitat rate is already at its goal.": "Merk: Måne-habitatmengden har allerede nådd sitt mål.",
     "Note: Moon mining rate is already at its goal.": "Merk: Måne-gruvedriften har allerede nådd sitt mål.",
     "Note: Moon logistics rate is already at its goal.": "Merk: Måne-logistikken har allerede nådd sitt mål.",
-	"Yes": "Ja",
-	"No": "Nei"
+        "Yes": "Ja",
+        "No": "Nei",
+        "Reorder Cards": "Omorganiser kortene"
 }

@@ -4,7 +4,7 @@
 
 <script lang="ts">
 
-import Vue from 'vue';
+import {defineComponent} from '@/client/vue3-compat';
 import {SpaceType} from '@/common/boards/SpaceType';
 import {TileType, tileTypeToString} from '@/common/TileType';
 import {SpaceHighlight, SpaceModel} from '@/common/models/SpaceModel';
@@ -99,11 +99,12 @@ const descriptions: Record<TileType, string> = {
   [TileType.NEW_HOLLAND]: 'New Holland: counts as an ocean and a city',
 };
 
-export default Vue.extend({
+export default defineComponent({
   name: 'board-space-tile',
   props: {
     space: {
       type: Object as () => SpaceModel,
+      required: true,
     },
     aresExtension: {
       type: Boolean,
@@ -144,17 +145,22 @@ export default Vue.extend({
         }
         css += ' board-space-tile--' + cssClass;
       } else {
-        if (this.spaceType === SpaceType.OCEAN) {
+        switch (this.spaceType) {
+        case SpaceType.OCEAN:
           css += ' board-space-type-ocean';
-        } else if (this.spaceType === SpaceType.COVE) {
+          break;
+        case SpaceType.COVE:
           if (this.highlight !== 'volcanic') {
             // Custom for Arabia Terra's space Tikhonarov.
             css += ' board-space-type-cove';
           } else {
             css += ' board-space-type-volcanic-cove';
           }
-        } else if (this.spaceType !== SpaceType.RESTRICTED) {
-          css += ` board-space-type-land`;
+          break;
+        case SpaceType.RESTRICTED:
+          break;
+        default:
+          css += ' board-space-type-land';
 
           if (this.highlight) {
             css += ` board-space-type-land-${this.highlight}`;

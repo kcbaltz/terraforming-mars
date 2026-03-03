@@ -137,6 +137,9 @@ export class Tags {
     return false;
   }
 
+  /**
+   * Returns the number of tags on `card`. Takes Habitat Marte into account.
+   */
   public cardTagCount(card: ICard, target: OneOrArray<Tag>): number {
     let count = 0;
     for (const tag of card.tags) {
@@ -171,9 +174,9 @@ export class Tags {
     const includeEvents = this.player.tableau.has(CardName.ODYSSEY);
 
     let tagCount = 0;
-    tags.forEach((tag) => {
+    for (const tag of tags) {
       tagCount += this.rawCount(tag, includeEvents);
-    });
+    }
 
     // This is repeated behavior from getTagCount, sigh, OK.
     if (tags.includes(Tag.EARTH) && !tags.includes(Tag.MOON) && this.player.tableau.has(CardName.EARTH_EMBASSY)) {
@@ -187,6 +190,13 @@ export class Tags {
     } else {
       // Chimera counts as one wild tag for awards
       if (this.player.tableau.has(CardName.CHIMERA)) tagCount++;
+    }
+
+    if (tags.includes(Tag.SCIENCE)) {
+      tagCount += this.extraScienceTags;
+    }
+    if (tags.includes(Tag.PLANT)) {
+      tagCount += this.extraPlantTags;
     }
 
     return tagCount;

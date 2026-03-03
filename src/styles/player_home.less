@@ -432,6 +432,11 @@
     visibility: hidden;
 }
 
+.hotkey-target {
+  visibility: hidden;
+  scroll-margin-top: 70px;
+}
+
 .highlighter_box {
     text-shadow: 1px 1px 1px #222, -1px -1px 1px #666;
     padding: 1px 10px;
@@ -608,6 +613,13 @@
             border-radius: 10px 10px 0 0;
         }
 
+        .claimable {
+          border: 1px solid #b0b040;
+        }
+        .not-claimable {
+          border: 0px solid;
+        }
+
         @ma-name:
           terraformer, mayor, gardener, builder, planner,
           landlord, banker, scientist, thermalist, miner,
@@ -642,12 +654,17 @@
           incorporator, manufacturer, politician,
 
           administrator, constructor, founder, highlander, hydrologist, investor,
-          landscaper, metropolist, mogul, thawer, traveller,
+          landscaper, metropolist, mogul, thawer, traveller, blacksmith,
 
           collector, electrician, fundraiser, geologist, landshaper, lobbyist, philantropist,
           planetologist, producer, researcher, sponsor, forester, breeder, thermoengineer,
 
           kingpin, excavator, tunneler, risktaker,
+
+          architect, c-forester, coastguard,
+
+          builder7, legend4, pioneer4, metallurgist, spacefarer4, tactician4,
+          terraformer29, terran5, trader, tycoon10, suburbian, briber,
         ;
         each(@ma-name, {
           .ma-name--@{value} {
@@ -835,7 +852,7 @@
     width: 33px;
     margin: 30px 0 0 0;
     font-family: Prototype;
-    font-size: 15px;
+    font-size: 11px;
     text-align: center;
     color: #fff;
 }
@@ -870,7 +887,7 @@
     margin-bottom: 15px;
     z-index: 105;
     top: -12px;
-    display: flex;
+    display: inline-flex;
 
     .top-bar-collapser {
         background: #303030;

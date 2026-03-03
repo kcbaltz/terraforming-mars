@@ -1,6 +1,7 @@
 import {CardName} from '../../../common/cards/CardName';
 import {ModuleManifest} from '../ModuleManifest';
 import {Advertising} from './Advertising';
+import {AlbedoPlants} from './AlbedoPlants';
 import {AntidesertificationTechniques} from './AntidesertificationTechniques';
 import {AqueductSystems} from './AqueductSystems';
 import {ArcadianCommunities} from './ArcadianCommunities';
@@ -79,6 +80,7 @@ import {SoilEnrichment} from './SoilEnrichment';
 import {SolarLogistics} from './SolarLogistics';
 import {Splice} from './Splice';
 import {StanfordTorus} from './StanfordTorus';
+import {StaticHarvesting} from './StaticHarvesting';
 import {StJosephOfCupertinoMission} from './StJosephOfCupertinoMission';
 import {SubCrustMeasurements} from './SubCrustMeasurements';
 import {Supercapacitors} from './Supercapacitors';
@@ -90,6 +92,8 @@ import {StrategicBasePlanning} from './StrategicBasePlanning';
 import {Hospitals} from './Hospitals';
 import {NewHolland} from './NewHolland';
 import {Vermin} from './Vermin';
+import {WeatherBalloons} from './WeatherBalloons';
+
 
 export const PROMO_CARD_MANIFEST = new ModuleManifest({
   module: 'promo',
@@ -165,6 +169,8 @@ export const PROMO_CARD_MANIFEST = new ModuleManifest({
     [CardName.NEW_HOLLAND]: {Factory: NewHolland},
     [CardName.VERMIN]: {Factory: Vermin},
     [CardName.PUBLIC_PLANS]: {Factory: PublicPlans},
+    [CardName.STATIC_HARVESTING]: {Factory: StaticHarvesting},
+    [CardName.WEATHER_BALLOONS]: {Factory: WeatherBalloons},
   },
 
   preludeCards: {
@@ -172,11 +178,15 @@ export const PROMO_CARD_MANIFEST = new ModuleManifest({
     [CardName.MERGER]: {Factory: Merger},
     [CardName.CORPORATE_ARCHIVES]: {Factory: CorporateArchives},
     [CardName.DOUBLE_DOWN]: {Factory: DoubleDown, compatibility: 'prelude'},
+
+    // https://github.com/terraforming-mars/terraforming-mars/issues/5852
     // [CardName.HEAD_START]: {Factory: HeadStart}, // Head Start is disabled because it's not working well.
+
     [CardName.ANTI_DESERTIFICATION_TECHNIQUES]: {Factory: AntidesertificationTechniques},
     // [CardName.ESTABLISHED_METHODS]: {Factory: EstablishedMethods}, // X54
     [CardName.GIANT_SOLAR_COLLECTOR]: {Factory: GiantSolarCollector, compatibility: 'venus'},
     [CardName.STRATEGIC_BASE_PLANNING]: {Factory: StrategicBasePlanning, compatibility: 'colonies'},
+    [CardName.ALBEDO_PLANTS]: {Factory: AlbedoPlants},
   },
 
   cardsToRemove: [

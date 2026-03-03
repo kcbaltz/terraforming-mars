@@ -8,27 +8,27 @@
     <Card class="cardbox" :card="availableCard" />
   </label>
 
-  <section v-trim-whitespace>
-    <template v-if="card.additionalProjectCosts">
-      <div v-if="card.additionalProjectCosts.aeronGenomicsResources" class="card-warning"
-        v-i18n="[$t(card.name), card.additionalProjectCosts.thinkTankResources, 'animals', $t(CardName.AERON_GENOMICS)]"
-      >
-        Playing ${0} consumes ${1} ${2} from ${3}
-      </div>
-      <div v-if="card.additionalProjectCosts.thinkTankResources" class="card-warning"
-        v-i18n="[$t(card.name), card.additionalProjectCosts.thinkTankResources, 'data', $t(CardName.THINK_TANK)]">
-        Playing ${0} consumes ${1} ${2} from ${3}
-      </div>
-      <div v-if="card.additionalProjectCosts.redsCost" class="card-warning" v-i18n="[$t(card.name), card.additionalProjectCosts.redsCost, $t('Reds')]">
-        Playing ${0} will cost ${1} M€ more because ${2} are in power
-      </div>
-    </template>
-    <warnings-component :warnings="card.warnings"></warnings-component>
+  <template v-if="card.additionalProjectCosts">
+    <div v-if="card.additionalProjectCosts.aeronGenomicsResources" class="card-warning"
+      v-i18n="[$t(card.name), card.additionalProjectCosts.aeronGenomicsResources, 'animals', $t(CardName.AERON_GENOMICS)]"
+    >
+      Playing ${0} consumes ${1} ${2} from ${3}
+    </div>
+    <div v-if="card.additionalProjectCosts.thinkTankResources" class="card-warning"
+      v-i18n="[$t(card.name), card.additionalProjectCosts.thinkTankResources, 'data', $t(CardName.THINK_TANK)]">
+      Playing ${0} consumes ${1} ${2} from ${3}
+    </div>
+    <div v-if="card.additionalProjectCosts.redsCost" class="card-warning" v-i18n="[$t(card.name), card.additionalProjectCosts.redsCost, $t('Reds')]">
+      Playing ${0} will cost ${1} M€ more because ${2} are in power
+    </div>
+  </template>
+  <warnings-component :warnings="card.warnings"></warnings-component>
 
+  <section v-trim-whitespace>
     <h3 class="payments_title" v-i18n>How to pay?</h3>
 
-    <template v-for="unit of SPENDABLE_RESOURCES">
-      <div v-bind:key="unit">
+    <template v-for="unit of SPENDABLE_RESOURCES" :key="unit">
+      <div>
         <payment-unit-component
           v-model.number="payment[unit]"
           v-if="canUse(unit) === true"
@@ -56,7 +56,7 @@
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
+import {defineComponent, nextTick} from 'vue';
 
 import AppButton from '@/client/components/common/AppButton.vue';
 import {Payment} from '@/common/inputs/Payment';
@@ -76,17 +76,20 @@ import {CardName} from '@/common/cards/CardName';
 import {SelectProjectCardToPlayResponse} from '@/common/inputs/InputResponse';
 import WarningsComponent from '@/client/components/WarningsComponent.vue';
 
-export default Vue.extend({
+export default defineComponent({
   name: 'SelectProjectCardToPlay',
   props: {
     playerView: {
       type: Object as () => PlayerViewModel,
+      required: true,
     },
     playerinput: {
       type: Object as () => SelectProjectCardToPlayModel,
+      required: true,
     },
     onsave: {
       type: Function as unknown as () => (out: SelectProjectCardToPlayResponse) => void,
+      required: true,
     },
     showsave: {
       type: Boolean,
@@ -150,7 +153,7 @@ export default Vue.extend({
     WarningsComponent,
   },
   mounted() {
-    Vue.nextTick(() => {
+    nextTick(() => {
       this.card = this.getCard();
       this.cost = this.card.calculatedCost ?? 0;
       this.tags = this.getCardTags(),

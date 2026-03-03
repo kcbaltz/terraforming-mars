@@ -33,14 +33,14 @@ import {SelectPaymentDeferred} from './deferredActions/SelectPaymentDeferred';
 import {SelectInitialCards} from './inputs/SelectInitialCards';
 import {PlaceOceanTile} from './deferredActions/PlaceOceanTile';
 import {RemoveColonyFromGame} from './deferredActions/RemoveColonyFromGame';
-import {GainResources} from './deferredActions/GainResources';
+import {GainResourcesDeferred} from './deferredActions/GainResourcesDeferred';
 import {SerializedGame} from './SerializedGame';
 import {SpaceBonus} from '../common/boards/SpaceBonus';
 import {TileType} from '../common/TileType';
 import {Turmoil} from './turmoil/Turmoil';
 import {RandomMAOptionType} from '../common/ma/RandomMAOptionType';
 import {AresHandler} from './ares/AresHandler';
-import {AresData, deserializeAresData} from '../common/ares/AresData';
+import {AresData} from '../common/ares/AresData';
 import {GameSetup} from './GameSetup';
 import {GameCards} from './GameCards';
 import {GlobalParameter} from '../common/GlobalParameter';
@@ -70,16 +70,17 @@ import {UnderworldExpansion} from './underworld/UnderworldExpansion';
 import {SendDelegateToArea} from './deferredActions/SendDelegateToArea';
 import {BuildColony} from './deferredActions/BuildColony';
 import {newInitialDraft, newPreludeDraft, newCEOsDraft, newStandardDraft} from './Draft';
-import {sum, toID, toName} from '../common/utils/utils';
+import {partition, sum, toID, toName} from '../common/utils/utils';
 import {OrOptions} from './inputs/OrOptions';
 import {SelectOption} from './inputs/SelectOption';
 import {SelectSpace} from './inputs/SelectSpace';
 import {maybeRenamedMilestone} from '../common/ma/MilestoneName';
 import {maybeRenamedAward} from '../common/ma/AwardName';
-import {Eris} from './cards/community/Eris';
 import {AresHazards} from './ares/AresHazards';
 import {hazardSeverity} from '../common/AresTileType';
 import {IStandardProjectCard} from './cards/IStandardProjectCard';
+import {BoardName} from '../common/boards/BoardName';
+import {SpaceType} from '../common/boards/SpaceType';
 
 // Can be overridden by tests
 
@@ -232,7 +233,9 @@ export class Game implements IGame, Logger {
   }
 
   private setFirstPlayer(first: IPlayer) {
-    this.log('First player this generation is ${0}', (b) => b.player(first));
+    if (!this.isSoloMode()) {
+      this.log('First player this generation is ${0}', (b) => b.player(first));
+    }
     this.first = first;
     const e = [...this.players, ...this.players];
     const idx = e.findIndex((p) => p.id === this.first.id);
@@ -587,8 +590,9 @@ export class Game implements IGame, Logger {
 
     // Ares Extreme: Solo player must remove all unprotected hazards to win
     if (this.gameOptions.aresExtension && this.gameOptions.aresExtremeVariant) {
-      const unprotectedHazardsRemaining = Eris.getAllUnprotectedHazardSpaces(this);
-      if (unprotectedHazardsRemaining.length > 0) return false;
+      if (this.board.getUnprotectedHazards().length > 0) {
+        return false;
+      }
     }
 
     // This last conditional doesn't make much sense to me. It's only ever really used
@@ -771,7 +775,13 @@ export class Game implements IGame, Logger {
       const direction = Math.floor(this.rng.nextInt(2)) === 0 ? 'top' : 'bottom';
       const tileType = this.board.getOceanSpaces().length >= 3 ? TileType.EROSION_MILD : TileType.DUST_STORM_MILD;
 
-      AresHazards.randomlyPlaceHazard(this, tileType, direction);
+      try {
+        const space = AresHazards.randomlyPlaceHazard(this, tileType, direction);
+        this.log('${0} placed at ${1}', (b) => b.tileType(tileType).space(space));
+      } catch (e) {
+        // #7734, the map is probably full.
+        this.log('The map is full. No random hazard can be placed this generation.');
+      }
     }
 
     if (this.gameOptions.solarPhaseOption && ! this.marsIsTerraformed()) {
@@ -914,8 +924,7 @@ export class Game implements IGame, Logger {
     }
 
     if (this.gameOptions.aresExtension && this.gameOptions.aresExtremeVariant && this.isSoloMode()) {
-      // TODO(kberg): move the eris method elsewhere
-      const unprotectedHazardSpaces = Eris.getAllUnprotectedHazardSpaces(this);
+      const unprotectedHazardSpaces = this.board.getUnprotectedHazards();
 
       if (unprotectedHazardSpaces.length > 0) {
         orOptions.options.push(
@@ -1104,6 +1113,7 @@ export class Game implements IGame, Logger {
 
       if (this.canPlaceGreenery(player)) {
         this.activePlayer = player;
+        this.save();
         player.takeActionForFinalGreenery();
         return;
       } else if (player.getWaitingFor() !== undefined) {
@@ -1344,6 +1354,12 @@ export class Game implements IGame, Logger {
       AresHandler.ifAres(this, (aresData) => {
         AresHandler.maybeIncrementMilestones(aresData, player, space, hazardSeverity(initialTileType));
       });
+
+      if (this.gameOptions.boardName === BoardName.HOLLANDIA) {
+        const spaces = this.board.spaces.filter(Board.ownedBy(player));
+        const part = partition(spaces, ((space) => space.spaceType === SpaceType.DEFLECTION_ZONE));
+        player.withinDeflectionZone = part[0].length > 0 && part[1].length === 0;
+      }
     } else {
       space.player = undefined;
     }
@@ -1385,11 +1401,11 @@ export class Game implements IGame, Logger {
       TurmoilHandler.resolveTilePlacementBonuses(player, space.spaceType);
 
       if (arcadianCommunityBonus) {
-        this.defer(new GainResources(player, Resource.MEGACREDITS, {count: 3}));
+        this.defer(new GainResourcesDeferred(player, Resource.MEGACREDITS, {count: 3}));
       }
 
       if (space.undergroundResources === 'place6mc') {
-        this.defer(new GainResources(player, Resource.MEGACREDITS, {count: 6}));
+        this.defer(new GainResourcesDeferred(player, Resource.MEGACREDITS, {count: 6}));
       }
     }
   }
@@ -1453,10 +1469,12 @@ export class Game implements IGame, Logger {
       this.defer(new AddResourcesToCard(player, CardResource.SCIENCE, {count: count}));
       break;
     case SpaceBonus.TEMPERATURE:
+    case SpaceBonus.TEMPERATURE_4MC:
       if (this.getTemperature() < constants.MAX_TEMPERATURE) {
+        const cost = spaceBonus === SpaceBonus.TEMPERATURE ? constants.VASTITAS_BOREALIS_BONUS_TEMPERATURE_COST : constants.VASTITAS_BOREALIS_NOVUS_BONUS_TEMPERATURE_COST;
         this.defer(new SelectPaymentDeferred(
           player,
-          constants.VASTITAS_BOREALIS_BONUS_TEMPERATURE_COST,
+          cost,
           {title: 'Select how to pay for placement bonus temperature'}))
           .andThen(() => this.increaseTemperature(player, 1));
       }
@@ -1607,11 +1625,6 @@ export class Game implements IGame, Logger {
     f?.(builder);
     const logMessage = builder.build();
     logMessage.playerId = options?.reservedFor?.id;
-    if (!message || !logMessage) {
-      // TODO(kberg): throw
-      console.error('Log message is undefined. Message: ' + message);
-      return;
-    }
     this.gameLog.push(logMessage);
     this.gameAge++;
   }
@@ -1643,25 +1656,6 @@ export class Game implements IGame, Logger {
   }
 
   public static deserialize(d: SerializedGame): Game {
-    // TODO(kberg): Remove by 2025-08-01
-    if (d.gameOptions.expansions === undefined) {
-      d.gameOptions.expansions = {
-        corpera: d.gameOptions.corporateEra,
-        venus: d.gameOptions.venusNextExtension,
-        colonies: d.gameOptions.coloniesExtension,
-        prelude: d.gameOptions.preludeExtension,
-        prelude2: d.gameOptions.prelude2Expansion,
-        turmoil: d.gameOptions.turmoilExtension,
-        promo: d.gameOptions.promoCardsOption,
-        community: d.gameOptions.communityCardsOption,
-        ares: d.gameOptions.aresExtension,
-        moon: d.gameOptions.moonExpansion,
-        pathfinders: d.gameOptions.pathfindersExpansion,
-        ceo: d.gameOptions.ceoExtension,
-        starwars: d.gameOptions.starWarsExpansion,
-        underworld: d.gameOptions.underworldExpansion,
-      };
-    }
     const gameOptions = d.gameOptions;
 
     const players = d.players.map((element) => Player.deserialize(element));
@@ -1710,7 +1704,7 @@ export class Game implements IGame, Logger {
     game.fundedAwards = deserializeFundedAwards(d.fundedAwards, players, awards);
 
     if (gameOptions.aresExtension) {
-      game.aresData = deserializeAresData(d.aresData);
+      game.aresData = d.aresData;
     }
     // Reload colonies elements if needed
     if (gameOptions.coloniesExtension) {
@@ -1762,8 +1756,8 @@ export class Game implements IGame, Logger {
     game.tradeEmbargo = d.tradeEmbargo ?? false;
     game.beholdTheEmperor = d.beholdTheEmperor ?? false;
     game.globalsPerGeneration = d.globalsPerGeneration;
-    game.verminInEffect = d.verminInEffect ?? false; // TODO(kberg): remove ?? false by 2025-08-01
-    game.exploitationOfVenusInEffect = d.exploitationOfVenusInEffect ?? false; // TODO(kberg): remove ?? false by 2025-08-01
+    game.verminInEffect = d.verminInEffect;
+    game.exploitationOfVenusInEffect = d.exploitationOfVenusInEffect;
     // Still in Draft or Research of generation 1
     if (game.generation === 1 && players.some((p) => p.playedCards.filter(isICorporationCard).length === 0)) {
       if (game.phase === Phase.INITIALDRAFTING) {
@@ -1787,6 +1781,10 @@ export class Game implements IGame, Logger {
       newStandardDraft(game).restoreDraft();
     } else if (game.phase === Phase.RESEARCH) {
       game.gotoResearchPhase();
+    } else if (game.phase === Phase.PRODUCTION) {
+      if (game.gameIsOver() && game.isDoneWithFinalProduction()) {
+        game.takeNextFinalGreeneryAction();
+      }
     } else if (game.phase === Phase.END) {
       // There's nowhere that we need to go for end game.
     } else {

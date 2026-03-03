@@ -7,7 +7,7 @@
   "Raise temperature 2 steps, or raise oxygen 2 steps, or raise Venus 2 steps. Draw 2 cards with floater icons.": "Effekt: Erhöhe entweder die Temperatur um 4°C oder den Sauerstoffsgehalt um 2% oder die Venuswertung um 4%. Ziehe 2 Karten mit Schwebern.",
 
   "Board of Directors": "Vorstandssitzung",
-  "ACTION: ": "AKTION: ",
+  "ACTION:": "AKTION:",
   "DRAW 1 PRELUDE CARD: EITHER DISCARD IT, OR PAY 12 M€ AND REMOVE 1 DIRECTOR RESOURCE HERE TO PLAY IT.": "Ziehe 1 Präludium-Karte: Entweder wirf sie ab, oder zahle 12 M€ und entferne 1 Vorstand von dieser Karte, um sie zu spielen.",
   "Add 4 director resources here.": "Füge dieser Karte 4 Vorstand hinzu.",
 
@@ -92,9 +92,9 @@
   "Raise your TR 2 steps. Draw 1 card.": "Erhöhe deinen TW um 2. Ziehe 1 Karte.",
 
   "Strategic Base Planning": "Strategische Basisplannung",
-  "Pay 3M€. Place a city. Place a colony.": "Zahle 3 M€. Errichte eine Kolonie. Platziere ein Stadtplättchen.",
+  "Pay 3M€. Place a city. Place a colony.": "Zahle 3 M€. Platziere 1 Kolonie und 1 Stadtplättchen.",
 
-  "Anti-desertification Techniques": "Anti-Wüstenbildungstechniken",
+  "Anti-desertification Techniques": "Anti-Desertation-Techniken",
   "Gain 3 M€. Increase your plant production 1 step and your steel production 1 step.": "Erhöhe deine Pfanzen- und Stahl-Produktion um 1. Erhalte 3 M€.",
 
   "Corporate Archives": "Konzernarchiv",
@@ -107,7 +107,7 @@
   "Copy your other prelude's direct effect.": "Kopiere den Effekt deiner anderen Präludiumskarte.",
 
   "Giant Solar Collector": "Riesiger Sonnenkollektor",
-  "Increase your energy production 2 steps. Raise Venus 1 step.": "Erhöhe die Energieproduktion um 2 Stufen. Erhöhe die Venuswertung um 2%.",
+  "Increase your energy production 2 steps. Raise Venus 1 step.": "Erhöhe deine Energieproduktion um 2. Erhöhe die Venuswertung um 2%.",
 
   "Head Start": "Vorsprung",
   "GAIN 2 STEEL.": "Erhalte 2 Stahl.",

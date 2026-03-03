@@ -34,6 +34,7 @@ import {IParty} from './turmoil/parties/IParty';
 import {Message} from '../common/logs/Message';
 import {DiscordId} from './server/auth/discord';
 import {PlayedCards} from './cards/PlayedCards';
+import {From} from './logs/From';
 
 /**
  * Represents additional costs a player must pay to execute an action.
@@ -107,7 +108,7 @@ export interface IPlayer {
   dealtProjectCards: Array<IProjectCard>;
   cardsInHand: Array<IProjectCard>;
   preludeCardsInHand: Array<IPreludeCard>;
-  ceoCardsInHand: Array<IProjectCard>;
+  ceoCardsInHand: Set<IProjectCard>;
   playedCards: PlayedCards;
   cardCost: number;
   // This will eventually replace playedCards.
@@ -155,6 +156,12 @@ export interface IPlayer {
    */
   standardProjectsThisGeneration: Set<CardName>;
 
+  /**
+   * For Hollandia. When true, player has tiles on Mars, and all of them are in the deflection zone.
+   * False when the player has any tiles on Mars outside the deflection zone, and also false when the
+   * player has no tiles on Mars.
+   */
+  withinDeflectionZone: boolean;
 
   // The number of actions a player can take this round.
   // It's almost always 2, but certain cards can change this value.
@@ -186,7 +193,7 @@ export interface IPlayer {
   decreaseSteelValue(): void;
   /** @deprecated use #terraformRating. */
   getTerraformRating(): number;
-  increaseTerraformRating(steps?: number, opts?: {log?: boolean}): void;
+  increaseTerraformRating(steps?: number, opts?: {log?: boolean, from?: From}): void;
   decreaseTerraformRating(steps?: number, opts?: {log?: boolean}): void;
   setTerraformRating(value: number): void;
 
@@ -342,6 +349,9 @@ export interface IPlayer {
   setWaitingFor(input: PlayerInput, cb?: () => void): void;
   setWaitingForSafely(input: PlayerInput, cb?: () => void): void;
   serialize(): SerializedPlayer;
+
+  /** Returns the cost a player must spend to claim a milestone. Public for Briber. */
+  milestoneCost(): number;
 
   /** Shorthand for deferring evaluating a PlayerInput */
   defer(input: PlayerInput | undefined | void | (() => PlayerInput | undefined | void), priority?: Priority): void;

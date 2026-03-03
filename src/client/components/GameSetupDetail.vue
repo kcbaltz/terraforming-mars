@@ -15,6 +15,7 @@
               <div v-if="isPoliticalAgendasOn" class="create-game-expansion-icon expansion-icon-agendas"></div>
               <div v-if="gameOptions.expansions.ceo" class="create-game-expansion-icon expansion-icon-ceo"></div>
               <div v-if="gameOptions.expansions.underworld" class="create-game-expansion-icon expansion-icon-underworld"></div>
+              <div v-if="gameOptions.expansions.starwars" class="create-game-expansion-icon expansion-icon-starwars"></div>
             </li>
 
             <li><div class="setup-item" v-i18n>Board:</div>
@@ -47,7 +48,7 @@
               <div v-if="gameOptions.preludeDraftVariant">Prelude</div>
             </li>
 
-            <li v-if="gameOptions.escapeVelocityMode">
+            <li v-if="gameOptions.escapeVelocity !== undefined">
               <div class="create-game-expansion-icon expansion-icon-escape-velocity"></div>
               <span>{{escapeVelocityDescription}}</span>
             </li>
@@ -59,7 +60,7 @@
 
             <li v-if="playerNumber === 1">
               <div class="setup-item" v-i18n>Solo:</div>
-              <div class="game-config generic" v-i18n>{{ this.lastSoloGeneration }} Gens</div>
+              <div class="game-config generic" v-i18n>{{ lastSoloGeneration }} Gens</div>
               <div v-if="gameOptions.soloTR" class="game-config generic" v-i18n>63 TR</div>
               <div v-else class="game-config generic" v-i18n>TR all</div>
             </li>
@@ -78,7 +79,7 @@
 
 <script lang="ts">
 
-import Vue from 'vue';
+import {defineComponent} from '@/client/vue3-compat';
 import {GameOptionsModel} from '@/common/models/GameOptionsModel';
 import {BoardName} from '@/common/boards/BoardName';
 import {RandomMAOptionType} from '@/common/ma/RandomMAOptionType';
@@ -95,19 +96,23 @@ const boardColorClass: Record<BoardName, string> = {
   [BoardName.ARABIA_TERRA]: 'game-config board-arabia_terra map',
   [BoardName.VASTITAS_BOREALIS]: 'game-config board-vastitas_borealis map',
   [BoardName.TERRA_CIMMERIA]: 'game-config board-terra_cimmeria map',
+  [BoardName.HOLLANDIA]: 'game-config board-hollandia map',
 };
 
-export default Vue.extend({
+export default defineComponent({
   name: 'game-setup-detail',
   props: {
     playerNumber: {
       type: Number,
+      required: true,
     },
     gameOptions: {
       type: Object as () => GameOptionsModel,
+      required: true,
     },
     lastSoloGeneration: {
       type: Number,
+      required: true,
     },
   },
   computed: {
@@ -118,12 +123,18 @@ export default Vue.extend({
       return boardColorClass[this.gameOptions.boardName];
     },
     escapeVelocityDescription(): string {
-      const {escapeVelocityThreshold, escapeVelocityPenalty, escapeVelocityPeriod, escapeVelocityBonusSeconds} = this.gameOptions ?? {};
-
-      if (escapeVelocityThreshold === undefined || escapeVelocityPenalty === undefined || escapeVelocityPeriod === undefined || escapeVelocityBonusSeconds === undefined) {
+      if (this.gameOptions.escapeVelocity === undefined) {
         return '';
       }
-      return translateTextWithParams('After ${0} min, reduce ${1} VP every ${2} min. (${3} bonus sec. per action.)', [escapeVelocityThreshold.toString(), escapeVelocityPenalty.toString(), escapeVelocityPeriod.toString(), escapeVelocityBonusSeconds.toString()]);
+      const ev = this.gameOptions.escapeVelocity;
+      return translateTextWithParams(
+        'After ${0} min, reduce ${1} VP every ${2} min. (${3} bonus sec. per action.)',
+        [
+          ev.thresholdMinutes.toString(),
+          ev.penaltyVPPerPeriod.toString(),
+          ev.penaltyPeriodMinutes.toString(),
+          ev.bonusSectionsPerAction.toString(),
+        ]);
     },
     RandomMAOptionType(): typeof RandomMAOptionType {
       return RandomMAOptionType;

@@ -21,7 +21,6 @@ import {SpectatorModel} from '../../common/models/SpectatorModel';
 import {GameModel} from '../../common/models/GameModel';
 import {Turmoil} from '../turmoil/Turmoil';
 import {createPathfindersModel} from './PathfindersModel';
-import {MoonExpansion} from '../moon/MoonExpansion';
 import {MoonModel} from '../../common/models/MoonModel';
 import {CardName} from '../../common/cards/CardName';
 import {AwardScorer} from '../awards/AwardScorer';
@@ -57,6 +56,7 @@ export class Server {
       awards: this.getAwards(game),
       colonies: coloniesToModel(game, game.colonies, false, true),
       deckSize: game.projectDeck.drawPile.length,
+      discardPileSize: game.projectDeck.discardPile.length,
       discardedColonies: game.discardedColonies.map(toName),
       expectedPurgeTimeMs: game.expectedPurgeTimeMs(),
       gameAge: game.gameAge,
@@ -87,14 +87,14 @@ export class Server {
   public static getPlayerModel(player: IPlayer): PlayerViewModel {
     const game = player.game;
 
-    const players: Array<PublicPlayerModel> = game.playersInGenerationOrder.map(this.getPlayer);
+    const players: Array<PublicPlayerModel> = game.playersInGenerationOrder.map((p) => this.getPlayer(p, p.color === player.color));
 
     const thisPlayerIndex = players.findIndex((p) => p.color === player.color);
     const thisPlayer: PublicPlayerModel = players[thisPlayerIndex];
 
     const rv: PlayerViewModel = {
       cardsInHand: cardsToModel(player, player.cardsInHand, {showCalculatedCost: true}),
-      ceoCardsInHand: cardsToModel(player, player.ceoCardsInHand),
+      ceoCardsInHand: cardsToModel(player, Array.from(player.ceoCardsInHand)),
       dealtCorporationCards: cardsToModel(player, player.dealtCorporationCards),
       dealtPreludeCards: cardsToModel(player, player.dealtPreludeCards),
       dealtCeoCards: cardsToModel(player, player.dealtCeoCards),
@@ -118,7 +118,7 @@ export class Server {
       color: 'neutral',
       id: game.spectatorId,
       game: this.getGameModel(game),
-      players: game.playersInGenerationOrder.map(this.getPlayer),
+      players: game.playersInGenerationOrder.map((p) => this.getPlayer(p, false)),
       thisPlayer: undefined,
       runId: runId,
     };
@@ -148,14 +148,15 @@ export class Server {
       let scores: Array<MilestoneScore> = [];
       if (claimed === undefined && claimedMilestones.length < MAX_MILESTONES) {
         scores = game.players.map((player) => ({
-          playerColor: player.color,
-          playerScore: milestone.getScore(player),
+          color: player.color,
+          score: milestone.getScore(player),
+          claimable: milestone.canClaim(player),
         }));
       }
 
       milestoneModels.push({
         playerName: claimed?.player.name,
-        playerColor: claimed?.player.color,
+        color: claimed?.player.color,
         name: milestone.name,
         scores,
       });
@@ -174,14 +175,14 @@ export class Server {
       let scores: Array<AwardScore> = [];
       if (fundedAwards.length < MAX_AWARDS || funded !== undefined) {
         scores = game.players.map((player) => ({
-          playerColor: player.color,
-          playerScore: scorer.get(player),
+          color: player.color,
+          score: scorer.get(player),
         }));
       }
 
       awardModels.push({
         playerName: funded?.player.name,
-        playerColor: funded?.player.color,
+        color: funded?.player.color,
         name: award.name,
         scores: scores,
       });
@@ -204,7 +205,8 @@ export class Server {
     // showReset: player.game.inputsThisRound > 0 && player.game.resettable === true && player.game.phase === Phase.ACTION,
   }
 
-  public static getPlayer(player: IPlayer): PublicPlayerModel {
+  /** When the model is for this player, show the VP. Players like seeing their own VP even if the feature is off. */
+  public static getPlayer(player: IPlayer, modelIsForThisPlayer: boolean): PublicPlayerModel {
     const game = player.game;
     const useHandicap = game.players.some((p) => p.handicap !== 0);
     const model: PublicPlayerModel = {
@@ -250,7 +252,7 @@ export class Server {
       titanium: player.titanium,
       titaniumProduction: player.production.titanium,
       titaniumValue: player.getTitaniumValue(),
-      tradesThisGeneration: player.colonies.tradesThisGeneration,
+      tradesThisGeneration: player.colonies.usedTradeFleets,
       underworldData: player.underworldData,
       victoryPointsBreakdown: {
         terraformRating: 0,
@@ -272,11 +274,14 @@ export class Server {
         negativeVP: 0,
       },
       victoryPointsByGeneration: [],
+      globalParameterSteps: {},
     };
 
-    if (game.phase === Phase.END || game.isSoloMode() || game.gameOptions.showOtherPlayersVP === true) {
+    if (game.phase === Phase.END || game.isSoloMode() ||
+        game.gameOptions.showOtherPlayersVP === true || modelIsForThisPlayer) {
       model.victoryPointsBreakdown = player.getVictoryPoints();
       model.victoryPointsByGeneration = player.victoryPointsByGeneration;
+      model.globalParameterSteps = player.globalParameterSteps;
     }
 
     return model;
@@ -371,7 +376,7 @@ export class Server {
       if (color !== undefined) {
         model.color = color;
       }
-      if (highlight === undefined) {
+      if (highlight !== undefined) {
         model.highlight = highlight;
       }
       if (space.tile?.rotated === true) {
@@ -408,11 +413,7 @@ export class Server {
       boardName: options.boardName,
       bannedCards: options.bannedCards,
       draftVariant: options.draftVariant,
-      escapeVelocityMode: options.escapeVelocityMode,
-      escapeVelocityThreshold: options.escapeVelocityThreshold,
-      escapeVelocityBonusSeconds: options.escapeVelocityBonusSeconds,
-      escapeVelocityPeriod: options.escapeVelocityPeriod,
-      escapeVelocityPenalty: options.escapeVelocityPenalty,
+      escapeVelocity: options.escapeVelocity,
       expansions: {
         corpera: options.corporateEra,
         promo: options.promoCardsOption,
@@ -451,13 +452,15 @@ export class Server {
   }
 
   private static getMoonModel(game: IGame): MoonModel | undefined {
-    return MoonExpansion.ifElseMoon(game, (moonData) => {
+    const moonData = game.moonData;
+    if (moonData) {
       return {
         logisticsRate: moonData.logisticRate,
         miningRate: moonData.miningRate,
         habitatRate: moonData.habitatRate,
         spaces: this.getSpaces(moonData.moon),
       };
-    }, () => undefined);
+    }
+    return undefined;
   }
 }

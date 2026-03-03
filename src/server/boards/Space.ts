@@ -16,6 +16,10 @@ export type Space = {
 
   /** The type of space: ocean, space colony, etc. */
   spaceType: SpaceType;
+
+  /** When true, this is a volcanic space. */
+  volcanic?: boolean;
+
   /** The tile placed on top of the space. Could be a hazard tile. */
   tile?: Tile;
   /** The player who owns this tile. Will show a token, even the neutral player */
@@ -25,10 +29,9 @@ export type Space = {
   /** The bonuses granted to players when placing tiles NEXT TO this space. */
   adjacency?: AdjacencyBonus,
 
-  // TODO(kberg): Rename to undergroundResource or undergroundResourceToken
   /** Optional underworld expansion resource token. */
   undergroundResources?: UndergroundResourceToken;
-  /** Optional underworld player who excavated this resource token. */
+  /** Optional underworld player who excavated at this space. */
   excavator?: IPlayer;
 
   /** This tile's co-owner. Used for The Moon's Hostile Takeover card. */

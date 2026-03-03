@@ -1,5 +1,4 @@
 import {inplaceRemove} from '../../common/utils/utils';
-import {undergroundResourceTokenDescription} from '../../common/underworld/UndergroundResourceToken';
 import {IPlayer} from '../IPlayer';
 import {Space} from '../boards/Space';
 import {Priority} from '../deferredActions/Priority';
@@ -22,7 +21,7 @@ export class ExcavateSpacesDeferred extends RunNTimes<void> {
   }
 
   protected run() {
-    const title = 'Select space to excavate' + this.titleSuffix();
+    const title = this.createTitle('Select space to excavate');
     this.player.defer(() => {
       const spaces =
         this.spaces ??
@@ -32,8 +31,7 @@ export class ExcavateSpacesDeferred extends RunNTimes<void> {
       if (spaces.length === 0) {
         const undergroundResource = UnderworldExpansion.drawExcavationToken(this.player.game);
         this.player.game.log('${0} excavated ${1} from the draw pile', (b) =>
-          b.player(this.player)
-            .string(undergroundResourceTokenDescription[undergroundResource]));
+          b.player(this.player).undergroundToken(undergroundResource));
         UnderworldExpansion.claimToken(this.player, undergroundResource, /* isExcavate= */ true, /* space= */ undefined);
         return this.next();
       }

@@ -341,14 +341,18 @@ describe('UnderworldExpansion', () => {
 
   it('grant bonus - science tag', () => {
     expect(player1.tags.count(Tag.SCIENCE)).eq(2);
+    expect(player1.tags.multipleCount([Tag.SCIENCE])).eq(2);
     UnderworldExpansion.grant(player1, 'sciencetag');
     expect(player1.tags.count(Tag.SCIENCE)).eq(3);
+    expect(player1.tags.multipleCount([Tag.SCIENCE])).eq(3);
   });
 
   it('grant bonus - plant tag', () => {
     expect(player1.tags.count(Tag.PLANT)).eq(0);
+    expect(player1.tags.multipleCount([Tag.PLANT])).eq(0);
     UnderworldExpansion.grant(player1, 'planttag');
     expect(player1.tags.count(Tag.PLANT)).eq(1);
+    expect(player1.tags.multipleCount([Tag.PLANT])).eq(1);
   });
 
   it('excavatableSpaces', () => {
@@ -389,6 +393,30 @@ describe('UnderworldExpansion', () => {
     player1.megaCredits = 4;
 
     expect(UnderworldExpansion.excavatableSpaces(player1)).contains(space);
+  });
+
+  it('Rey Skywalker space is identifiable and excavatable', () => {
+    const space = UnderworldExpansion.identifiableSpaces(player1)[0];
+    game.simpleAddTile(player1, space, {tileType: TileType.REY_SKYWALKER});
+
+    expect(UnderworldExpansion.identifiableSpaces(player1)).contains(space);
+    expect(UnderworldExpansion.excavatableSpaces(player1)).contains(space);
+
+    UnderworldExpansion.excavate(player1, space);
+
+    expect(space.excavator?.id).eq(player1.id);
+  });
+
+  it('Martian Nature Wonders space is identifiable and excavatable', () => {
+    const space = UnderworldExpansion.identifiableSpaces(player1)[0];
+    game.simpleAddTile(player1, space, {tileType: TileType.MARTIAN_NATURE_WONDERS});
+
+    expect(UnderworldExpansion.identifiableSpaces(player1)).contains(space);
+    expect(UnderworldExpansion.excavatableSpaces(player1)).contains(space);
+
+    UnderworldExpansion.excavate(player1, space);
+
+    expect(space.excavator?.id).eq(player1.id);
   });
 
   // TODO(kberg): Test excavatablespaces override
@@ -520,11 +548,11 @@ describe('UnderworldExpansion', () => {
     expect(player1.stock.titanium).eq(2);
   });
 
-  it('temperature bonus does not apply to Solar Phase', () => {
+  it('temperature bonus applies to Solar Phase', () => {
     player1.underworldData.activeBonus = 'titanium1pertemp';
     game.phase = Phase.SOLAR;
     game.increaseTemperature(player2, 2);
-    expect(player1.stock.titanium).eq(0);
+    expect(player1.stock.titanium).eq(2);
   });
 
   it('temperature bonus does not apply next generation', () => {
